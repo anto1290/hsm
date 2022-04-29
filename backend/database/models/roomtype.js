@@ -28,7 +28,6 @@ const RoomTypeSchema = new mongoose.Schema(
     },
     kidsOccupancy: {
       type: Number,
-      required: true,
     },
     amenities: [
       {
@@ -39,12 +38,9 @@ const RoomTypeSchema = new mongoose.Schema(
     typeBed: {
       type: String,
       enum: ["Single", "Twin", "Double", "Queen", "King"],
-      required: true,
-      default: "Single",
     },
     extraBed: {
       type: Number,
-      required: true,
       default: 0,
     },
     maxOccupancy: {
@@ -64,6 +60,10 @@ const RoomTypeSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
+    },
+    typeRoom: {
+      type: String,
+      enum: ["Rooms", "Halls"],
     },
   },
   {

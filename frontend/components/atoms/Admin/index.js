@@ -1,7 +1,7 @@
 import * as Fa from "react-icons/fa";
 import { useState } from "react";
 import Link from "next/link";
-import { MenuAdmin } from "../../../components";
+import { MenuAdmin } from "@/components";
 import withAuth from "../withAuth";
 const LayoutAdmin = withAuth(({ children }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -95,17 +95,14 @@ const LayoutAdmin = withAuth(({ children }) => {
                       >
                         {item.childern.map((child) => {
                           return (
-                            <li
-                              key={child.id}
-                              className="rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2"
-                            >
-                              <Link href={child.href}>
+                            <Link key={child.id} href={child.href}>
+                              <li className="rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2">
                                 <a>
                                   <Fa.FaRegDotCircle className="text-gray-300 text-base inline-block mr-3" />
                                   {child.name}
                                 </a>
-                              </Link>
-                            </li>
+                              </li>
+                            </Link>
                           );
                         })}
                       </ul>

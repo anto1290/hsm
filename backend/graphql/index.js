@@ -14,6 +14,7 @@ const {
   designationQuery,
   floorQuery,
   paymentQuery,
+  priceQuery,
   roomQuery,
   roomTypeQuery,
   serviceQuery,
@@ -25,6 +26,7 @@ const {
   designationMutation,
   floorMutation,
   paymentMutation,
+  priceMutation,
   roomMutation,
   roomTypeMutation,
   serviceMutation,
@@ -39,6 +41,7 @@ const {
   designationsTypes,
   floorTypes,
   paymentTypes,
+  priceTypes,
   roomsTypes,
   roomTypes,
   serviceTypes,
@@ -54,6 +57,7 @@ const Departement = require("./models/Departement");
 const Designation = require("./models/Designation");
 const Floor = require("./models/Floors");
 const Payment = require("./models/Payment");
+const Price = require("./models/Price");
 const Room = require("./models/Rooms");
 const RoomType = require("./models/RoomType");
 const Service = require("./models/Service");
@@ -64,12 +68,19 @@ const { buildAuthContext } = require("./context");
 const typeDefs = gql`
   scalar Date
   scalar Upload
+  type special {
+    title: String
+    description: String
+    startDate: Date
+    endDate: Date
+  }
   ${amenitieTypes}
   ${bookingTypes}
   ${departementTypes}
   ${designationsTypes}
   ${floorTypes}
   ${paymentTypes}
+  ${priceTypes}
   ${roomsTypes}
   ${roomTypes}
   ${serviceTypes}
@@ -95,11 +106,15 @@ const typeDefs = gql`
     payment(id: ID!): Payment
     payments: [Payment]
 
+    price(id: ID!): Price
+    prices: [Price]
+
     room(id: ID!): Room
     rooms: [Room]
 
     roomType(id: ID!): RoomType!
-    roomTypes: [RoomType]
+    roomTypeAmenitie(id: ID!): RoomTypeAmenitie!
+    roomTypes: [RoomTypeAmenitie]
 
     service(id: ID!): Service
     services: [Service]
@@ -125,11 +140,11 @@ const typeDefs = gql`
     deleteBooking(id: ID!): ID
 
     createDepartement(input: DepartementInput): Departement
-    updateDepartement(id: ID!, input: DepartementInput): Departement
+    updateDepartement(id: ID!, input: DepartementInput!): Departement
     deleteDepartement(id: ID!): ID
 
     createDesignation(input: DesignationInput): Designation
-    updateDesignation(id: ID!, input: DesignationInput): Designation
+    updateDesignation(id: ID!, input: DesignationInput!): Designation
     deleteDesignation(id: ID!): ID
 
     createFloor(input: FloorInput): Floor
@@ -140,17 +155,21 @@ const typeDefs = gql`
     updatePayment(id: ID!, input: PaymentInput): Payment
     deletePayment(id: ID!): ID
 
+    createPrice(input: PriceInput): Price
+    updatePrice(id: ID!, input: PriceInput): Price
+    deletePrice(id: ID!): ID
+
     createRoom(input: RoomInput): Room
     updateRoom(id: ID!, input: RoomInput): Room
-    deleteRoom(id: ID!): Room
+    deleteRoom(id: ID!): ID
 
     createRoomType(input: RoomTypeInput!): RoomType
     updateRoomType(id: ID, input: RoomTypeInput!): RoomType
     deleteRoomType(id: ID): ID
 
     createService(input: ServiceInput): Service
-    updateService(id: ID, input: ServiceInput): Service
-    deleteService(id: ID): ID
+    updateService(id: ID!, input: ServiceInput): Service
+    deleteService(id: ID!): ID
 
     createStatusRoom(input: StatusRoomInput): StatusRoom
     updateStatusRoom(id: ID, input: StatusRoomInput): StatusRoom
@@ -171,6 +190,7 @@ const resolvers = {
     ...designationQuery,
     ...floorQuery,
     ...paymentQuery,
+    ...priceQuery,
     ...roomQuery,
     ...roomTypeQuery,
     ...serviceQuery,
@@ -184,6 +204,7 @@ const resolvers = {
     ...designationMutation,
     ...floorMutation,
     ...paymentMutation,
+    ...priceMutation,
     ...roomMutation,
     ...roomTypeMutation,
     ...serviceMutation,
@@ -209,6 +230,7 @@ exports.createApolloServer = () => {
         Designation: new Designation(mongoose.model("Designation")),
         Floor: new Floor(mongoose.model("Floor")),
         Payment: new Payment(mongoose.model("Payment")),
+        Price: new Price(mongoose.model("Price")),
         Room: new Room(mongoose.model("Room")),
         RoomType: new RoomType(mongoose.model("RoomType")),
         Service: new Service(mongoose.model("Service")),

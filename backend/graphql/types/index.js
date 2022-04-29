@@ -6,9 +6,8 @@ const amenitieTypeField = `
 
 const departementTypeField = `
     nameDepartement:String,
+    codeDepartement:String,
     active:Boolean,
-    createdAt:Date,
-    updatedAt:Date,
     `;
 const designationsTypeField = `
     nameDesignation:String,
@@ -19,23 +18,6 @@ const floorTypeField = `
     numberFloor:Int,
     description:String,
     `;
-
-const roomTypeField = `
-nameType: String,
-codeType: String,
-imageType: String,
-image: [String],
-description: String,
-baseOccupancy: Int,
-kidsOccupancy: Int,
-amenities: [String],
-typeBed: String,
-extraBed: Int,
-maxOccupancy: Int,
-basePrice: Int,
-additionalPersonPrice: Int,
-extraBedPrice: Int,
-`;
 
 const statusRoomField = `
 nameStatus: String,
@@ -86,7 +68,7 @@ exports.departementTypes = `
     }
     input DepartementInput {
     ${departementTypeField}
-}
+    }
 `;
 // Type designations
 exports.designationsTypes = `
@@ -129,6 +111,38 @@ exports.paymentTypes = `
         paymentStatus:String,
 }
 `;
+// Type price
+exports.priceTypes = `
+    
+    type Price {
+        _id: ID,
+        roomType:RoomType,
+        mon:Int,
+        tue:Int,
+        wed:Int,
+        thu:Int,
+        fri:Int,
+        sat:Int,
+        sun:Int,
+        priceType:String,
+        special:special,
+    }
+    input PriceInput {
+        roomType:String,
+        mon:Int,
+        tue:Int,
+        wed:Int,
+        thu:Int,
+        fri:Int,
+        sat:Int,
+        sun:Int,
+        priceType:String,
+            title:String,
+            description:String,
+            startDate:Date,
+            endDate:Date,
+    }
+`;
 // Type room
 exports.roomsTypes = `
     type Room {
@@ -137,6 +151,7 @@ exports.roomsTypes = `
     floor:Floor,
     roomType:RoomType,
     statusRoom:StatusRoom,
+    typeRoom:String,
     status:String,
     }
     input RoomInput {
@@ -144,6 +159,7 @@ exports.roomsTypes = `
         floor:String,
         roomType:String,
         statusRoom:String,
+        typeRoom:String,
         status:String,
 }
 `;
@@ -151,10 +167,56 @@ exports.roomsTypes = `
 exports.roomTypes = `
     type RoomType {
     _id: ID,
-    ${roomTypeField}
+    nameType: String,
+    codeType: String,
+    imageType: String,
+    image: [String],
+    description: String,
+    baseOccupancy: Int,
+    kidsOccupancy: Int,
+    amenities : [String],
+    typeBed: String,
+    extraBed: Int,
+    maxOccupancy: Int,
+    basePrice: Int,
+    additionalPersonPrice: Int,
+    extraBedPrice: Int,
+    typeRoom: String,
     }
-    input RoomTypeInput {
-    ${roomTypeField}
+    type RoomTypeAmenitie {
+    _id: ID,
+    nameType: String,
+    codeType: String,
+    imageType: String,
+    image: [String],
+    description: String,
+    baseOccupancy: Int,
+    kidsOccupancy: Int,
+    amenities : [Amenitie]
+    typeBed: String,
+    extraBed: Int,
+    maxOccupancy: Int,
+    basePrice: Int,
+    additionalPersonPrice: Int,
+    extraBedPrice: Int,
+    typeRoom: String,
+        }
+input RoomTypeInput {
+        nameType: String,
+        codeType: String,
+        imageType: String,
+        image: [String],
+        description: String,
+        baseOccupancy: Int,
+        kidsOccupancy: Int,
+        amenities : [String]
+        typeBed: String,
+        extraBed: Int,
+        maxOccupancy: Int,
+        basePrice: Int,
+        additionalPersonPrice: Int,
+        extraBedPrice: Int,
+        typeRoom: String,
     }
     `;
 // Type service

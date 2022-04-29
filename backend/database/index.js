@@ -9,10 +9,14 @@ require("./models/departement");
 require("./models/designation");
 require("./models/user");
 require("./models/payment");
+require("./models/price");
 require("./models/booking");
 require("./models/service");
 require("./models/amenities");
 require("./models/statusRoom");
+require("./models/country");
+require("./models/city");
+require("./models/region");
 exports.connect = () => {
   mongoose.connect(
     config.BD_URI,

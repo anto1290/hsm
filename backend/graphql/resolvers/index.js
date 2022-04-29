@@ -30,11 +30,11 @@ exports.departementQuery = {
 };
 // Designations query
 exports.designationQuery = {
-  designation: async (root, args, ctx) => {
-    return await ctx.models.Designation.getAll();
+  designation: async (root, { id }, ctx) => {
+    return await ctx.models.Designation.getById(id);
   },
   designations: async (root, args, ctx) => {
-    return await ctx.models.Departement.getAll();
+    return await ctx.models.Designation.getAll();
   },
 };
 
@@ -56,32 +56,114 @@ exports.paymentQuery = {
     return await ctx.models.Payment.getAll();
   },
 };
+// Price query
+exports.priceQuery = {
+  price: async (root, { id }, ctx) => {
+    const price = await ctx.models.Price.getById(id);
+    const RoomType = await ctx.models.RoomType.getById(price.roomType);
+    price.roomType = RoomType;
+    return price;
+  },
+  prices: async (root, args, ctx) => {
+    const Price = await ctx.models.Price.getAll();
+    const priceAsync = async (item) => {
+      const RoomType = await ctx.models.RoomType.getById(item.roomType);
+      item.roomType = RoomType;
+      return item;
+    };
+    const pricePromise = async () => {
+      return Promise.all(Price.map((item) => priceAsync(item)));
+    };
+    return await pricePromise();
+  },
+};
 // Room Query
 exports.roomQuery = {
   room: async (root, { id }, ctx) => {
-    return await ctx.models.Room.getById(id);
+    const Room = await ctx.models.Room.getById(id);
+    const Floor = await ctx.models.Floor.getById(Room.floor);
+    const RoomType = await ctx.models.RoomType.getById(Room.roomType);
+    const Amenitie = await ctx.models.Amenitie.getAll();
+    const RoomStatus = await ctx.models.StatusRoom.getById(Room.statusRoom);
+
+    Room.floor = Floor;
+    Room.roomType = RoomType;
+    Room.statusRoom = RoomStatus;
+
+    return Room;
   },
   rooms: async (root, args, ctx) => {
-    return await ctx.models.Room.getAll();
+    const Room = await ctx.models.Room.getAll();
+    const RoomAsync = async (item) => {
+      const Floor = await ctx.models.Floor.getById(item.floor);
+      const RoomType = await ctx.models.RoomType.getById(item.roomType);
+      const RoomStatus = await ctx.models.StatusRoom.getById(item.statusRoom);
+      item.floor = Floor;
+      item.roomType = RoomType;
+      item.statusRoom = RoomStatus;
+      return item;
+    };
+    const RoomPromise = async () => {
+      return Promise.all(Room.map((item) => RoomAsync(item)));
+    };
+    return await RoomPromise();
   },
 };
 // Room Type Query
 exports.roomTypeQuery = {
   roomType: async (root, { id }, ctx) => {
-    return await ctx.models.RoomType.getById(id);
+    const roomType = await ctx.models.RoomType.getById(id);
+
+    return roomType;
+  },
+  roomTypeAmenitie: async (root, { id }, ctx) => {
+    const roomType = await ctx.models.RoomType.getById(id);
+    const Amenitie = await ctx.models.Amenitie.getAll();
+    const Amenities = Amenitie.filter((item) =>
+      roomType.amenities.includes(item.id)
+    );
+    // update amenities
+    roomType.amenities = Amenities;
+
+    return roomType;
   },
   roomTypes: async (root, args, ctx) => {
-    return await ctx.models.RoomType.getAll();
+    const roomTypes = await ctx.models.RoomType.getAll();
+    const Amenitie = await ctx.models.Amenitie.getAll();
+    roomTypes.map((items) => {
+      const Amenities = Amenitie.filter((item) =>
+        items.amenities.includes(item.id)
+      );
+      // update amenities
+      items.amenities = Amenities;
+    });
+    return roomTypes;
   },
 };
 
 // Service Query
 exports.serviceQuery = {
   service: async (root, { id }, ctx) => {
-    return await ctx.models.Service.getById(id);
+    const Service = await ctx.models.Service.getById(id);
+    const roomTypes = await ctx.models.RoomType.getAll();
+    const RoomTypes = roomTypes.filter((item) =>
+      Service.roomType.includes(item.id)
+    );
+
+    Service.roomType = RoomTypes;
+    return Service;
   },
   services: async (root, args, ctx) => {
-    return await ctx.models.Service.getAll();
+    const Services = await ctx.models.Service.getAll();
+    const roomTypes = await ctx.models.RoomType.getAll();
+    Services.map((items) => {
+      const RoomTypes = roomTypes.filter((item) =>
+        items.roomType.includes(item.id)
+      );
+      // update amenities
+      items.roomType = RoomTypes;
+    });
+    return Services;
   },
 };
 
@@ -100,7 +182,22 @@ exports.userQuery = {
     return ctx.models.User.getAuthUser(ctx);
   },
   userRole: async (root, { role }, ctx) => {
-    return await ctx.models.User.getAllByRole(role);
+    const Users = await ctx.models.User.getAllByRole(role);
+    const UsersAsync = async (item) => {
+      const Departement = await ctx.models.Departement.getById(
+        item.departement
+      );
+      const Designation = await ctx.models.Designation.getById(
+        item.designation
+      );
+      item.departement = Departement;
+      item.designation = Designation;
+      return item;
+    };
+    const UsersPromise = async () => {
+      return Promise.all(Users.map((item) => UsersAsync(item)));
+    };
+    return await UsersPromise();
   },
 };
 
@@ -132,27 +229,29 @@ exports.bookingMutation = {
 };
 // Departement mutation
 exports.departementMutation = {
-  createDepartement: async (root, { data }, ctx) => {
-    return await ctx.models.Departement.create(data);
+  createDepartement: async (root, { input }, ctx) => {
+    return await ctx.models.Departement.create(input);
   },
-  updateDepartement: async (root, { id, data }, ctx) => {
-    return await ctx.models.Departement.findAndUpdate(id, data);
+  updateDepartement: async (root, { id, input }, ctx) => {
+    return await ctx.models.Departement.findAndUpdate(id, input);
   },
   deleteDepartement: async (root, { id }, ctx) => {
-    return await ctx.models.Departement.findAndDelete(id);
+    const departement = await ctx.models.Departement.findAndDelete(id);
+    return departement._id;
   },
 };
 
 // Designation mutation
 exports.designationMutation = {
-  createDesignation: async (root, { data }, ctx) => {
-    return await ctx.models.Designation.create(data);
+  createDesignation: async (root, { input }, ctx) => {
+    return await ctx.models.Designation.create(input);
   },
-  updateDesignation: async (root, { id, data }, ctx) => {
-    return await ctx.models.Designation.findAndUpdate(id, data);
+  updateDesignation: async (root, { id, input }, ctx) => {
+    return await ctx.models.Designation.findAndUpdate(id, input);
   },
   deleteDesignation: async (root, { id }, ctx) => {
-    return await ctx.models.Designation.findAndDelete(id);
+    const designation = await ctx.models.Designation.findAndDelete(id);
+    return designation._id;
   },
 };
 
@@ -181,15 +280,47 @@ exports.paymentMutation = {
     return await ctx.models.Payment.findAndDelete(id);
   },
 };
-
+// Price Mutations
+exports.priceMutation = {
+  createPrice: async (root, { input }, ctx) => {
+    return await ctx.models.Price.create(input);
+  },
+  updatePrice: async (root, { id, input }, ctx) => {
+    return await ctx.models.Price.findAndUpdate(id, input);
+  },
+  deletePrice: async (root, { id }, ctx) => {
+    const price = await ctx.models.Price.findAndDelete(id);
+    return price._id;
+  },
+};
 // Room Mutations
 exports.roomMutation = {
   createRoom: async (root, { input }, ctx) => {
     const createdRoom = await ctx.models.Room.create(input);
+    const Floor = await ctx.models.Floor.getById(createdRoom.floor);
+    const RoomType = await ctx.models.RoomType.getById(createdRoom.roomType);
+    const RoomStatus = await ctx.models.StatusRoom.getById(
+      createdRoom.statusRoom
+    );
+
+    createdRoom.floor = Floor;
+    createdRoom.roomType = RoomType;
+    createdRoom.statusRoom = RoomStatus;
+
     return createdRoom;
   },
   updateRoom: async (root, { id, input }, ctx) => {
+    console.log(input);
     const updatedRoom = await ctx.models.Room.findAndUpdate(id, input);
+    const Floor = await ctx.models.Floor.getById(updatedRoom.floor);
+    const RoomType = await ctx.models.RoomType.getById(updatedRoom.roomType);
+    const RoomStatus = await ctx.models.StatusRoom.getById(
+      updatedRoom.statusRoom
+    );
+
+    updatedRoom.floor = Floor;
+    updatedRoom.roomType = RoomType;
+    updatedRoom.statusRoom = RoomStatus;
     return updatedRoom;
   },
   deleteRoom: async (root, { id }, ctx) => {

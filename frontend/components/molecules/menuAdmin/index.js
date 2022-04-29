@@ -53,8 +53,8 @@ export const MenuAdmin = [
       },
       {
         id: "3",
-        name: "Type Halls",
-        href: "/admin/typeHalls",
+        name: "Hall Types",
+        href: "/admin/hallType",
       },
       {
         id: "4",

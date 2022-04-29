@@ -10,8 +10,10 @@ import Modal from "./modals";
 import Redirect from "./redirect";
 import { errorMessage } from "./errors";
 import { Rupiah } from "./table/currency";
+import { ControlledMultiCheckbox } from "./multiCheckBox";
 export {
   MenuAdmin,
+  ControlledMultiCheckbox,
   ChartComponent,
   Table,
   SelectColumnFilter,

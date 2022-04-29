@@ -5,22 +5,23 @@ import {
   useUploadImage,
   useGetAmenities,
   useDeleteImage,
-} from "../../../apollo/action";
+} from "@/apollo/action";
 const FormRoomType = ({ onSubmit, initialData }) => {
   const router = useRouter();
   const imageReset = useRef();
-  const { handleSubmit, register, setValue } = useForm();
+  const { handleSubmit, register, setValue, control } = useForm();
+  const { loading, error, data } = useGetAmenities();
   const [image, setImage] = useState(null);
   const [imageUpload, { data: imageData }] = useUploadImage();
   const [deleteImage] = useDeleteImage();
-
+  const amenities = data && data.amenities;
+  const [checked, setChecked] = useState([]);
   useEffect(() => {
     if (imageData) {
       setImage(imageData.imageUpload);
       setValue("imageType", imageData.imageUpload);
     }
   }, [imageData]);
-  const { loading, error, data } = useGetAmenities();
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -34,11 +35,51 @@ const FormRoomType = ({ onSubmit, initialData }) => {
       }
     }
   };
-  if (initialData) {
-    setValue("description", initialData.description);
-    setValue("amenities", initialData.amenities);
-    setValue("image", initialData.image);
-  }
+  useEffect(() => {
+    if (initialData) {
+      if (!image) {
+        setValue("imageType", initialData.imageType);
+        setImage(initialData.imageType);
+      }
+      setValue("nameType", initialData.nameType, { shouldTouch: true });
+      setValue("codeType", initialData.codeType, { shouldTouch: true });
+      setValue("imageType", initialData.imageType, { shouldTouch: true });
+      setValue("description", initialData.description, { shouldTouch: true });
+      setValue("image", initialData.image, { shouldTouch: true });
+      setValue("baseOccupancy", initialData.baseOccupancy, {
+        shouldTouch: true,
+      });
+      setValue("kidsOccupancy", initialData.kidsOccupancy, {
+        shouldTouch: true,
+      });
+      setChecked(initialData.amenities);
+      setValue("amenitie", initialData.amenities, { shouldTouch: true });
+      setValue("typeBed", initialData.typeBed, { shouldTouch: true });
+      setValue("extraBed", initialData.extraBed, { shouldTouch: true });
+      setValue("extraBedPrice", initialData.extraBedPrice, {
+        shouldTouch: true,
+      });
+      setValue("maxOccupancy", initialData.maxOccupancy, { shouldTouch: true });
+      setValue("basePrice", initialData.basePrice, { shouldTouch: true });
+      setValue("additionalPersonPrice", initialData.additionalPersonPrice, {
+        shouldTouch: true,
+      });
+    }
+  }, [initialData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (checked.length >= 1) {
+      const data = checked.map((item) => item === value);
+      if (data.includes(true)) {
+        setChecked(checked.filter((item) => item !== value));
+      } else {
+        setChecked([...checked, value]);
+      }
+    } else {
+      setChecked([value]);
+    }
+  };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid grid-cols-2 gap-6">
@@ -107,7 +148,9 @@ const FormRoomType = ({ onSubmit, initialData }) => {
             className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
             placeholder="number only"
-            {...register("baseOccupancy")}
+            {...register("baseOccupancy", {
+              setValueAs: (v) => parseInt(v),
+            })}
           />
         </label>
         <label className="block">
@@ -117,26 +160,37 @@ const FormRoomType = ({ onSubmit, initialData }) => {
             className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
             placeholder="1"
-            {...register("kidsOccupancy")}
+            {...register("kidsOccupancy", {
+              setValueAs: (v) => parseInt(v),
+            })}
           />
         </label>
-        <label className="block">
+        <label>
           <span className="text-gray-700">Amenities</span>
           {loading && <div>Loading</div>}
           {error && <div>Error</div>}
-          <div className="grid grid-col-3">
-            {data &&
-              data.amenities.map((amenitie) => (
-                <div key={amenitie._id}>
-                  <input
-                    {...register("amenitie")}
-                    type="checkbox"
-                    name="amenitie"
-                    value={amenitie._id}
-                  />
-                  {`  ${amenitie.name}`}
-                </div>
-              ))}
+          <div className="flex justify-start">
+            {amenities &&
+              amenities.map((amenity, index) => {
+                const val =
+                  checked.length >= 1 &&
+                  checked.some((item) => amenity._id === item);
+                return (
+                  <div key={index} className="mr-2 ">
+                    <input
+                      className="mr-1"
+                      type="checkbox"
+                      name="amenitie[]"
+                      id="amenitie"
+                      defaultValue={amenity._id}
+                      {...register("amenitie")}
+                      onChange={(e) => handleChange(e)}
+                      checked={val}
+                    />
+                    {amenity.name}
+                  </div>
+                );
+              })}
           </div>
         </label>
         <label className="block">
@@ -162,7 +216,9 @@ const FormRoomType = ({ onSubmit, initialData }) => {
                 className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
                 placeholder="1"
-                {...register("maxOccupancy")}
+                {...register("maxOccupancy", {
+                  setValueAs: (v) => parseInt(v),
+                })}
               />
             </label>
             <label className="block">
@@ -172,7 +228,9 @@ const FormRoomType = ({ onSubmit, initialData }) => {
                 className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
                 placeholder="extra bed"
-                {...register("extraBed")}
+                {...register("extraBed", {
+                  setValueAs: (v) => parseInt(v),
+                })}
               />
             </label>
             <label className="block">
@@ -182,7 +240,9 @@ const FormRoomType = ({ onSubmit, initialData }) => {
                 className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
                 placeholder="1st floor"
-                {...register("extraBedPrice")}
+                {...register("extraBedPrice", {
+                  setValueAs: (v) => parseInt(v),
+                })}
               />
             </label>
           </div>
@@ -194,7 +254,9 @@ const FormRoomType = ({ onSubmit, initialData }) => {
             className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
             placeholder="RP. 1.000.000"
-            {...register("basePrice")}
+            {...register("basePrice", {
+              setValueAs: (v) => parseInt(v),
+            })}
           />
         </label>
         <label className="block">
@@ -204,7 +266,9 @@ const FormRoomType = ({ onSubmit, initialData }) => {
             className="mt-0  block  w-full  px-0.5 border-0 border-b-2 border-gray-200
                 focus:ring-0 focus:border-blue-600 focus:border-b-2 focus:outline-none"
             placeholder="Rp. 500.000"
-            {...register("additionalPersonPrice")}
+            {...register("additionalPersonPrice", {
+              setValueAs: (v) => parseInt(v),
+            })}
           />
         </label>
       </div>
@@ -217,7 +281,7 @@ const FormRoomType = ({ onSubmit, initialData }) => {
         </button>
         <button
           type="button"
-          onClick={() => router.push("./")}
+          onClick={() => router.push("/admin/roomType")}
           className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
         >
           back
