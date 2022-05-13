@@ -19,6 +19,40 @@ exports.bookingQuery = {
     return await ctx.models.Booking.getAll();
   },
 };
+// Country query
+exports.countryQuery = {
+  country: async (root, { id }, ctx) => {
+    return await ctx.models.Country.getById(id);
+  },
+
+  countries: async (root, args, ctx) => {
+    return await ctx.models.Country.getAll();
+  },
+};
+// City query
+exports.cityQuery = {
+  city: async (root, { id }, ctx) => {
+    return await ctx.models.City.getById(id);
+  },
+  cityByRegion: async (root, { regionId }, ctx) => {
+    const City = await ctx.models.City.getByRegion(regionId);
+    const cityAsync = async (item) => {
+      const Country = await ctx.models.Country.getById(item.country);
+      const Region = await ctx.models.Region.getById(item.region);
+      item.region = Region;
+      item.country = Country;
+      return item;
+    };
+    const cityPromise = async () => {
+      return Promise.all(City.map((item) => cityAsync(item)));
+    };
+    return await cityPromise();
+  },
+  cities: async (root, args, ctx) => {
+    return await ctx.models.City.getAll();
+  },
+};
+
 // Departement query
 exports.departementQuery = {
   departement: async (root, { id }, ctx) => {
@@ -75,6 +109,27 @@ exports.priceQuery = {
       return Promise.all(Price.map((item) => priceAsync(item)));
     };
     return await pricePromise();
+  },
+};
+// Region query
+exports.regionQuery = {
+  region: async (root, { id }, ctx) => {
+    return await ctx.models.Region.getById(id);
+  },
+  regionByCountry: async (root, { countryId }, ctx) => {
+    const Region = await ctx.models.Region.getByCountry(countryId);
+    const regionAsync = async (item) => {
+      const Country = await ctx.models.Country.getById(item.country);
+      item.country = Country;
+      return item;
+    };
+    const regionPromise = async () => {
+      return Promise.all(Region.map((item) => regionAsync(item)));
+    };
+    return await regionPromise();
+  },
+  regions: async (root, args, ctx) => {
+    return await ctx.models.Region.getAll();
   },
 };
 // Room Query
@@ -190,6 +245,12 @@ exports.userQuery = {
       const Designation = await ctx.models.Designation.getById(
         item.designation
       );
+      const Country = await ctx.models.Country.getById(item.country);
+      const Region = await ctx.models.Region.getById(item.region);
+      const City = await ctx.models.City.getById(item.city);
+      item.country = Country;
+      item.region = Region;
+      item.city = City;
       item.departement = Departement;
       item.designation = Designation;
       return item;
@@ -198,6 +259,21 @@ exports.userQuery = {
       return Promise.all(Users.map((item) => UsersAsync(item)));
     };
     return await UsersPromise();
+  },
+  userById: async (root, { id }, ctx) => {
+    const User = await ctx.models.User.getById(id);
+    const Departement = await ctx.models.Departement.getById(User.departement);
+    const Designation = await ctx.models.Designation.getById(User.designation);
+    const Country = await ctx.models.Country.getById(User.country);
+    const Region = await ctx.models.Region.getById(User.region);
+    const City = await ctx.models.City.getById(User.city);
+    User.departement = Departement;
+    User.designation = Designation;
+    User.country = Country;
+    User.region = Region;
+    User.city = City;
+
+    return User;
   },
 };
 
@@ -225,6 +301,32 @@ exports.bookingMutation = {
   },
   deleteBooking: async (root, { id }, ctx) => {
     return await ctx.models.Booking.findAndDelete(id);
+  },
+};
+// City mutation
+exports.cityMutation = {
+  createCity: async (root, { input }, ctx) => {
+    return await ctx.models.City.create(input);
+  },
+  updateCity: async (root, { id, input }, ctx) => {
+    return await ctx.models.City.findAndUpdate(id, input);
+  },
+  deleteCity: async (root, { id }, ctx) => {
+    const City = await ctx.models.City.findAndDelete(id);
+    return City._id;
+  },
+};
+// Country Mutation
+exports.countryMutation = {
+  createCountry: async (root, { input }, ctx) => {
+    return await ctx.models.Country.create(input);
+  },
+  updateCountry: async (root, { id, input }, ctx) => {
+    return await ctx.models.Country.findAndUpdate(id, input);
+  },
+  deleteCountry: async (root, { id }, ctx) => {
+    const Country = await ctx.models.Country.findAndDelete(id);
+    return Country._id;
   },
 };
 // Departement mutation
@@ -291,6 +393,19 @@ exports.priceMutation = {
   deletePrice: async (root, { id }, ctx) => {
     const price = await ctx.models.Price.findAndDelete(id);
     return price._id;
+  },
+};
+// Region Mutations
+exports.regionMutation = {
+  createRegion: async (root, { input }, ctx) => {
+    return await ctx.models.Region.create(input);
+  },
+  updateRegion: async (root, { id, input }, ctx) => {
+    return await ctx.models.Region.findAndUpdate(id, input);
+  },
+  deleteRegion: async (root, { id }, ctx) => {
+    const Region = await ctx.models.Region.findAndDelete(id);
+    return Region._id;
   },
 };
 // Room Mutations
@@ -379,13 +494,39 @@ exports.statusRoomMutation = {
 };
 // User Mutations
 exports.userMutation = {
+  updateUser: async (root, { id, input }, ctx) => {
+    const updatedUser = await ctx.models.User.findAndUpdate(id, input);
+    const Departement = await ctx.models.Departement.getById(
+      updatedUser.departement
+    );
+    const Designation = await ctx.models.Designation.getById(
+      updatedUser.designation
+    );
+    const Country = await ctx.models.Country.getById(updatedUser.country);
+    const Region = await ctx.models.Region.getById(updatedUser.region);
+    const City = await ctx.models.City.getById(updatedUser.city);
+    updatedUser.departement = Departement;
+    updatedUser.designation = Designation;
+    updatedUser.country = Country;
+    updatedUser.region = Region;
+    updatedUser.city = City;
+    return updatedUser;
+  },
   signUp: async (root, { input }, ctx) => {
     const registeredUser = await ctx.models.User.signUp(input);
-    return registeredUser._id;
+    return registeredUser;
   },
   signIn: (root, { input }, ctx) => ctx.models.User.signIn(input, ctx),
   signOut: (root, args, ctx) => {
     return ctx.models.User.signOut(ctx);
+  },
+  aktifUser: async (root, { id }, ctx) => {
+    const aktifUser = await ctx.models.User.aktif(id);
+    return aktifUser;
+  },
+  nonAktifUser: async (root, { id }, ctx) => {
+    const nonAktif = await ctx.models.User.nonAktif(id);
+    return nonAktif;
   },
 };
 

@@ -74,6 +74,103 @@ const DELETE_AMENITIE = gql`
     deleteAmenitie(id: $id)
   }
 `;
+// City 
+const GET_CITY = gql`
+  query City($id: ID!) {
+    city(id: $id) {
+      _id
+      name
+      region{
+        _id
+        name
+      }
+      country {
+        _id
+        name
+      }
+      latitude
+      longitude
+      wikiDataId
+    }
+  }
+`;
+const GET_CITYBYREGION = gql`
+  query CityByRegion($regionId: ID!) {
+    cityByRegion(regionId: $regionId) {
+      _id
+      name
+    }
+  }
+`;
+const GET_CITIES = gql`
+  query Cities {
+    cities {
+      _id
+      name
+      region{
+        _id
+        name
+      }
+      country {
+        _id
+        name
+      }
+      latitude
+      longitude
+      wikiDataId
+    }
+  }
+`;
+// Country
+const GET_COUNTRY = gql`
+  query Country($id: ID!) {
+    country(id: $id) {
+        _id
+        name
+        iso3
+        iso2
+        numeric_code
+        phone_code
+        capital
+        currency
+        currency_name
+        currency_symbol
+        tld
+        native
+        region
+        subregion
+        latitude
+        longitude
+        emoji
+        emojiU
+    }
+  }
+`;
+const GET_COUNTRIES = gql`
+  query Countries {
+    countries {
+      _id
+      name
+      iso3
+      iso2
+      numeric_code
+      phone_code
+      capital
+      currency
+      currency_name
+      currency_symbol
+      tld
+      native
+      region
+      subregion
+      latitude
+      longitude
+      emoji
+      emojiU
+    }
+  }
+`;
+
 // DEPARTEMENT
 const GET_DEPARTEMENT = gql`
   query Departement($id: ID!) {
@@ -354,7 +451,47 @@ const DELETE_PRICE = gql`
     deletePrice(id: $id)
   }
 `;
-
+// Region
+const GET_REGION = gql`
+  query Region($id: ID!) {
+    region(id: $id) {
+      _id
+      name
+      country{
+        _id
+        name
+      }
+      wikiDataId
+    }
+  }
+`;
+const GET_REGIONBYCOUNTRY = gql`
+  query Region($countryId: ID!) {
+    regionByCountry(countryId: $countryId) {
+      _id
+      name
+      country{
+        _id
+        name
+        iso3
+      }
+      wikiDataId
+    }
+  }
+`;
+const GET_REGIONS = gql`
+  query Regions {
+    regions {
+      _id
+      name
+      country{
+        _id
+        name
+      }
+      wikiDataId
+    }
+  }
+`;
 // Room
 const GET_ROOM = gql`
   query Room($id: ID!) {
@@ -723,6 +860,46 @@ const GET_DELETESERVICE = gql`
   }
 `
 // Users
+const GET_USERBYID = gql`
+  query UserId($id: ID){
+    userById(id: $id){
+      _id
+      image
+      firstName
+      lastName
+      username
+      email
+      departement {
+        _id
+        nameDepartement
+      }
+      designation {
+        _id
+        nameDesignation
+      }
+      gender
+      DOB
+      country{
+        _id
+        name
+      }
+      city{
+        _id
+        name
+      }
+      region{
+        _id
+        name
+      }
+      address
+      identitas
+      noIdentitas
+      phone
+      role
+      active
+    }
+  }
+`;
 const GET_USERROLE = gql`
   query UserRole($role: String!) {
     userRole(role: $role) {
@@ -741,10 +918,19 @@ const GET_USERROLE = gql`
         nameDesignation
       }
       gender
-      BOD
-      country
-      city
-      region
+      DOB
+      country{
+        _id
+        name
+      }
+      city{
+        _id
+        name
+      }
+      region{
+        _id
+        name
+      }
       address
       identitas
       noIdentitas
@@ -768,25 +954,66 @@ const GET_USER = gql`
 `;
 
 // Auth
+// Update
+const UPDATE_USER = gql`
+  mutation UpdateUser ($id: ID!, $input: userUpdateDataInput) {
+      updateUser(id: $id, input: $input) {
+      _id
+      firstName
+      lastName
+      email
+      username
+      gender
+      DOB
+      departement {
+        _id
+        nameDepartement
+      }
+      designation {
+        _id
+        nameDesignation
+      }
+      gender
+      DOB
+      country{
+        _id
+        name
+      }
+      city{
+        _id
+        name
+      }
+      region{
+        _id
+        name
+      }
+      address
+      identitas
+      noIdentitas
+      phone
+      role
+    }
+  }
+`;
 const SIGN_UP = gql`
   mutation SignUp(
     $image: String
-    $firstName: String!
-    $lastName: String!
-    $username: String!
-    $email: String!
+    $firstName: String
+    $lastName: String
+    $username: String
+    $email: String
     $gender: String
-    $password: String!
-    $passwordConfirm: String!
-    $BOD: Date
+    $password: String
+    $passwordConfirm: String
+    $DOB: Date
     $departement: String
     $designation: String
     $country: String
     $city: String
     $region: String
     $address: String
-    $identitas: String!
-    $noIdentitas: String!
+    $identitas: String
+    $noIdentitas: String
     $phone: String
     $role: String
   ) {
@@ -800,7 +1027,7 @@ const SIGN_UP = gql`
         gender: $gender
         password: $password
         passwordConfirm: $passwordConfirm
-        BOD: $BOD
+        DOB: $DOB
         departement: $departement
         designation: $designation
         country: $country
@@ -813,27 +1040,7 @@ const SIGN_UP = gql`
         role: $role
       }
     ) {
-      user {
-        _id
-        username
-        email
-        password
-        BOD
-        departement{
-          _id
-        }
-        designation{
-          _id
-        }
-        country
-        city
-        region
-        address
-        identitas
-        noIdentitas
-        phone
-        role
-      }
+      _id
     }
   }
 `;
@@ -865,6 +1072,11 @@ export {
   CREATE_AMENITIE,
   UPDATE_AMENITIE,
   DELETE_AMENITIE,
+  GET_CITY,
+  GET_CITYBYREGION,
+  GET_CITIES,
+  GET_COUNTRY,
+  GET_COUNTRIES,
   GET_DEPARTEMENT,
   GET_DEPARTEMENTS,
   CREATE_DEPARTEMENT,
@@ -885,6 +1097,9 @@ export {
   CREATE_PRICE,
   UPDATE_PRICE,
   DELETE_PRICE,
+  GET_REGION,
+  GET_REGIONBYCOUNTRY,
+  GET_REGIONS,
   GET_ROOM,
   GET_ROOMS,
   CREATE_ROOM,
@@ -903,7 +1118,9 @@ export {
   GET_UPDATESERVICE,
   GET_DELETESERVICE,
   GET_USER,
+  GET_USERBYID,
   GET_USERROLE,
+  UPDATE_USER,
   SIGN_IN,
   SIGN_UP,
   SIGN_OUT,

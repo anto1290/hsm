@@ -5,6 +5,11 @@ import {
   CREATE_AMENITIE,
   UPDATE_AMENITIE,
   DELETE_AMENITIE,
+  GET_CITY,
+  GET_CITYBYREGION,
+  GET_CITIES,
+  GET_COUNTRY,
+  GET_COUNTRIES,
   GET_DEPARTEMENT,
   GET_DEPARTEMENTS,
   CREATE_DEPARTEMENT,
@@ -30,6 +35,9 @@ import {
   UPLOAD_MULTIIMAGE,
   DELETE_IMAGE,
   DELETE_IMAGEMULTI,
+  GET_REGION,
+  GET_REGIONBYCOUNTRY,
+  GET_REGIONS,
   GET_ROOM,
   GET_ROOMS,
   CREATE_ROOM,
@@ -51,12 +59,21 @@ import {
   GET_CREATESERVICE,
   GET_UPDATESERVICE,
   GET_DELETESERVICE,
+  GET_USERBYID,
+  UPDATE_USER
 } from "../queries";
 
 // Query
 // Amenitie
 const useGetAmenitie = () => useLazyQuery(GET_AMENITIE);
 const useGetAmenities = () => useQuery(GET_AMENITIES);
+// City
+const useGetCity = () => useQuery(GET_CITY);
+const useGetCityByRegion = () => useLazyQuery(GET_CITYBYREGION);
+const useGetCities = () => useQuery(GET_CITIES);
+// Country
+const useGetCountry = () => useQuery(GET_COUNTRY);
+const useGetCountries = () => useQuery(GET_COUNTRIES);
 // Departement
 const useGetDepartement = () => useLazyQuery(GET_DEPARTEMENT);
 const useGetDepartements = () => useQuery(GET_DEPARTEMENTS);
@@ -69,7 +86,10 @@ const useGetFloors = () => useQuery(GET_FLOORS);
 // Price
 const useGetPrice = (option) => useQuery(GET_PRICE, option);
 const useGetPrices = () => useQuery(GET_PRICES);
-
+// Region
+const useGetRegion = () => useQuery(GET_REGION);
+const useGetRegionByCountry = () => useLazyQuery(GET_REGIONBYCOUNTRY);
+const useGetRegions = () => useQuery(GET_REGIONS);
 // Room
 const useGetRoom = () => useLazyQuery(GET_ROOM);
 const useGetRooms = () => useQuery(GET_ROOMS);
@@ -84,6 +104,7 @@ const useStatusRooms = () => useQuery(GET_STATUSROOM);
 const useGetService = (options) => useQuery(GET_SERVICE, options);
 const useGetServices = () => useQuery(GET_SERVICES);
 // Users
+const useGetUserById = () => useLazyQuery(GET_USERBYID);
 const useLazyGetUser = () => useLazyQuery(GET_USER);
 const useGetUser = () => useQuery(GET_USER);
 const userGetUsersRoleEmployes = () => useLazyQuery(GET_USERROLE);
@@ -271,6 +292,7 @@ const useDeleteService = () => useMutation(GET_DELETESERVICE, {
 })
 
 // User
+const useUpdateUser = () => useMutation(UPDATE_USER)
 const useSignUp = () => useMutation(SIGN_UP);
 const useSignIn = () =>
   useMutation(SIGN_IN, {
@@ -292,6 +314,11 @@ export {
   useCreateAmenitie,
   useUpdateAmenitie,
   useDeleteAmenitie,
+  useGetCity,
+  useGetCityByRegion,
+  useGetCities,
+  useGetCountry,
+  useGetCountries,
   useGetDepartement,
   useGetDepartements,
   useCreateDepartement,
@@ -312,6 +339,9 @@ export {
   useCreatePrice,
   useUpdatePrice,
   useDeletePrice,
+  useGetRegion,
+  useGetRegionByCountry,
+  useGetRegions,
   useGetRoom,
   useGetRooms,
   useCreateRoom,
@@ -331,6 +361,8 @@ export {
   userGetUsersRoleEmployes,
   useLazyGetUser,
   useGetUser,
+  useUpdateUser,
+  useGetUserById,
   useSignUp,
   useSignIn,
   useSignOut,

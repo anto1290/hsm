@@ -1,12 +1,40 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSignUp } from '@/apollo/action';
-import { FormEmploye, LayoutAdmin } from '@/components'
+import { FormEmploye, LayoutAdmin } from '@/components';
+import { useRouter } from 'next/router';
 
 const New = () => {
+    const router = useRouter();
     const [createEmploye, { loading, error, data: createEmployes }] = useSignUp();
     const handleSubmit = (data) => {
-        console.log(data)
+        const input = {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            username: data.username,
+            password: "12345678",
+            passwordConfirm: "12345678",
+            gender: data.gender,
+            DOB: data.DOB,
+            departement: data.departement,
+            designation: data.designation,
+            country: data.country,
+            city: data.city,
+            region: data.region,
+            address: data.address,
+            identitas: data.identitas,
+            noIdentitas: data.noIdentitas,
+            phone: data.phone,
+            role: data.role,
+        }
+        createEmploye({ variables: input })
     }
+    useEffect(() => {
+        if (createEmployes && createEmployes.signUp) {
+            alert('Success')
+            router.push('/admin/employes');
+        }
+    }, [createEmployes]);
     return (
         <LayoutAdmin>
             <section className="container mt-12">

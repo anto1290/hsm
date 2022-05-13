@@ -157,7 +157,7 @@ const LayoutAdmin = withAuth(({ children }) => {
               </div>
             </div>
           </div>
-          {children}
+          <div className="overflow-y-auto">{children}</div>
         </main>
       </div>
     </>

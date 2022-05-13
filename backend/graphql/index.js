@@ -10,11 +10,14 @@ const { makeExecutableSchema } = require("@graphql-tools/schema");
 const {
   amenitieQuery,
   bookingQuery,
+  cityQuery,
+  countryQuery,
   departementQuery,
   designationQuery,
   floorQuery,
   paymentQuery,
   priceQuery,
+  regionQuery,
   roomQuery,
   roomTypeQuery,
   serviceQuery,
@@ -22,11 +25,14 @@ const {
   userQuery,
   amenitieMutation,
   bookingMutation,
+  cityMutation,
+  countryMutation,
   departementMutation,
   designationMutation,
   floorMutation,
   paymentMutation,
   priceMutation,
+  regionMutation,
   roomMutation,
   roomTypeMutation,
   serviceMutation,
@@ -37,11 +43,14 @@ const {
 const {
   amenitieTypes,
   bookingTypes,
+  cityTypes,
+  countryTypes,
   departementTypes,
   designationsTypes,
   floorTypes,
   paymentTypes,
   priceTypes,
+  regionTypes,
   roomsTypes,
   roomTypes,
   serviceTypes,
@@ -53,11 +62,14 @@ const {
 // Models Graphql
 const Amenitie = require("./models/Amenities");
 const Booking = require("./models/Booking");
+const City = require("./models/City");
+const Country = require("./models/Country");
 const Departement = require("./models/Departement");
 const Designation = require("./models/Designation");
 const Floor = require("./models/Floors");
 const Payment = require("./models/Payment");
 const Price = require("./models/Price");
+const Region = require("./models/Region");
 const Room = require("./models/Rooms");
 const RoomType = require("./models/RoomType");
 const Service = require("./models/Service");
@@ -74,13 +86,37 @@ const typeDefs = gql`
     startDate: Date
     endDate: Date
   }
+  type Timezone {
+    zoneName: String
+    gmtOffset: Int
+    gmtOffsetName: String
+    abbreviation: String
+    tzName: String
+  }
+  type Translations {
+    kr: String
+    br: String
+    pt: String
+    nl: String
+    hr: String
+    fa: String
+    de: String
+    es: String
+    fr: String
+    ja: String
+    it: String
+    cn: String
+  }
   ${amenitieTypes}
   ${bookingTypes}
+  ${cityTypes}
+  ${countryTypes}
   ${departementTypes}
   ${designationsTypes}
   ${floorTypes}
   ${paymentTypes}
   ${priceTypes}
+  ${regionTypes}
   ${roomsTypes}
   ${roomTypes}
   ${serviceTypes}
@@ -93,6 +129,13 @@ const typeDefs = gql`
 
     booking(id: ID!): Booking
     bookings: [Booking]
+
+    city(id: ID!): City
+    cityByRegion(regionId: ID!): [City]
+    cities: [City]
+
+    country(id: ID!): Country
+    countries: [Country]
 
     departement(id: ID!): Departement
     departements: [Departement]
@@ -109,6 +152,10 @@ const typeDefs = gql`
     price(id: ID!): Price
     prices: [Price]
 
+    region(id: ID!): Region
+    regionByCountry(countryId: ID!): [Region]
+    regions: [Region]
+
     room(id: ID!): Room
     rooms: [Room]
 
@@ -124,6 +171,7 @@ const typeDefs = gql`
 
     user: User
     userRole(role: String!): [User!]!
+    userById(id: ID): User
   }
   type Mutation {
     imageUpload(file: Upload!): String!
@@ -138,6 +186,14 @@ const typeDefs = gql`
     createBooking(input: BookingInput): Booking
     updateBooking(id: ID!, input: BookingInput): Booking
     deleteBooking(id: ID!): ID
+
+    createCity(input: CityInput): City
+    updateCity(id: ID!, input: CityInput): City
+    deleteCity(id: ID!): ID
+
+    createCountry(input: CountryInput): Country
+    updateCountry(id: ID!, input: CountryInput): Country
+    deleteCountry(id: ID!): ID
 
     createDepartement(input: DepartementInput): Departement
     updateDepartement(id: ID!, input: DepartementInput!): Departement
@@ -159,6 +215,10 @@ const typeDefs = gql`
     updatePrice(id: ID!, input: PriceInput): Price
     deletePrice(id: ID!): ID
 
+    createRegion(input: RegionInput): Region
+    updateRegion(id: ID!, input: RegionInput): Region
+    deleteRegion(id: ID!): ID
+
     createRoom(input: RoomInput): Room
     updateRoom(id: ID!, input: RoomInput): Room
     deleteRoom(id: ID!): ID
@@ -175,7 +235,11 @@ const typeDefs = gql`
     updateStatusRoom(id: ID, input: StatusRoomInput): StatusRoom
     deleteStatusRoom(id: ID): ID
 
-    signUp(input: UserInput): String
+    updateUser(id: ID!, input: userUpdateDataInput): User
+    aktifUser(id: ID!): User
+    nonAktifUser(id: ID!): User
+
+    signUp(input: UserInput): User
     signIn(input: SignInInput): User
     signOut: Boolean
   }
@@ -186,11 +250,14 @@ const resolvers = {
   Query: {
     ...amenitieQuery,
     ...bookingQuery,
+    ...cityQuery,
+    ...countryQuery,
     ...departementQuery,
     ...designationQuery,
     ...floorQuery,
     ...paymentQuery,
     ...priceQuery,
+    ...regionQuery,
     ...roomQuery,
     ...roomTypeQuery,
     ...serviceQuery,
@@ -200,11 +267,14 @@ const resolvers = {
   Mutation: {
     ...amenitieMutation,
     ...bookingMutation,
+    ...cityMutation,
+    ...countryMutation,
     ...departementMutation,
     ...designationMutation,
     ...floorMutation,
     ...paymentMutation,
     ...priceMutation,
+    ...regionMutation,
     ...roomMutation,
     ...roomTypeMutation,
     ...serviceMutation,
@@ -226,11 +296,14 @@ exports.createApolloServer = () => {
       models: {
         Amenitie: new Amenitie(mongoose.model("Amenitie")),
         Booking: new Booking(mongoose.model("Booking")),
+        City: new City(mongoose.model("City")),
+        Country: new Country(mongoose.model("Country")),
         Departement: new Departement(mongoose.model("Departement")),
         Designation: new Designation(mongoose.model("Designation")),
         Floor: new Floor(mongoose.model("Floor")),
         Payment: new Payment(mongoose.model("Payment")),
         Price: new Price(mongoose.model("Price")),
+        Region: new Region(mongoose.model("Region")),
         Room: new Room(mongoose.model("Room")),
         RoomType: new RoomType(mongoose.model("RoomType")),
         Service: new Service(mongoose.model("Service")),

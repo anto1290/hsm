@@ -16,6 +16,18 @@ class User {
       throw error;
     }
   }
+  getById(id) {
+    return this.Model.findById(id);
+  }
+  findAndUpdate(id, data) {
+    return this.Model.findByIdAndUpdate(id, data, { new: true });
+  }
+  aktif(id) {
+    return this.Model.findByIdAndUpdate(id, { active: true }, { new: true });
+  }
+  nonAktif(id) {
+    return this.Model.findByIdAndUpdate(id, { active: false }, { new: true });
+  }
   getAuthUser(ctx) {
     if (ctx.isAuthenticated()) {
       return ctx.getUser();

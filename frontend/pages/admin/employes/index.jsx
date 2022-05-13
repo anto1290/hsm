@@ -6,25 +6,19 @@ import { LayoutAdmin, Button, Table } from "@/components";
 import * as Bs from "react-icons/bs";
 const Employes = () => {
   const router = useRouter();
-  const [employes, setEmploye] = useState(null);
   const { loading, error, data } = useQuery(GET_USERROLE, {
     variables: { role: "employes" },
   });
-  if (data && !employes) {
-    setEmploye(data.userRole);
-  }
-  const Employes = useMemo(() => {
-    if (!employes) {
-      return [];
-    } else {
-      employes;
-    }
-  }, []);
+
+  const Employes = (data && data.userRole) || [];
   const columns = useMemo(
     () => [
       {
         Header: "Name",
         accessor: "firstName",
+        Cell: ({ value, row }) => {
+          return <p className="text-sm">{value + ' ' + row.original.lastName}</p>;
+        }
       },
       {
         Header: "Departement",
@@ -35,12 +29,57 @@ const Employes = () => {
         accessor: "designation.nameDesignation",
       },
       {
+        Header: "BOD",
+        accessor: "DOB",
+        Cell: ({ value }) => {
+          const newDate = new Date(value).toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+
+          });
+          return <p className="text-sm">{newDate}</p>;
+        }
+      },
+      {
         Header: "Status",
         accessor: "active",
+        Cell: ({ value }) => {
+          const status = value;
+          return (
+            <span
+              className={`${status
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700"
+                } px-3 py-1 uppercase leading-wide font-bold text-xs rounded-full shadow-sm`}
+            >
+              {status ? "Active" : "Inactive"}
+            </span>
+          );
+        },
       },
       {
         Header: "action",
+        Cell: ({ row }) => (
+          <div>
+            <button
+              type="button"
+              className="px-2 py-2 outline-none bg-yellow-500 text-white hover:bg-yellow-400 rounded-sm text-sm"
+              onClick={() => router.push(`./employes/${row.original._id}/edit`)}
+            >
+              <Bs.BsWrench className="inline-block mr-1 text-base" />
+              Edit
+            </button>{" "}
+            <button
+              type="button"
+              className="px-2 py-2 outline-none bg-red-600 text-white hover:bg-red-500 rounded-sm text-sm"
 
+            >
+              <Bs.BsTrash className="inline-block mr-1 text-base" />
+              Delete
+            </button>
+          </div>
+        ),
       },
     ],
     []

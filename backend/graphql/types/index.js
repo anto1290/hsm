@@ -60,6 +60,87 @@ exports.bookingTypes = `
         paymentStatus:String,
 }
 `;
+// City Type
+exports.cityTypes = `
+    type City {
+        _id: ID,
+        name:String,
+        region:Region,
+        country:Country,
+        latitude:String,
+        longitude:String,
+        wikiDataId:String,
+    }
+    input CityInput {
+        name:String,
+        region:String,
+        country:String,
+        latitude:String,
+        longitude:String,
+        wikiDataId:String,
+    }
+`;
+// Country Type
+exports.countryTypes = `
+    type Country {
+        _id: ID,
+        name:String,
+        iso3:String,
+        iso2:String,
+        numeric_code:Int,
+        phone_code:String,
+        capital:String,
+        currency:String,
+        currency_name:String,
+        currency_symbol:String,
+        tld:String,
+        native:String,
+        region:String,
+        subregion:String,
+        timezones:[Timezone],
+        translations:Translations,
+        latitude:String,
+        longitude:String,
+        emoji:String,
+        emojiU:String,
+    }
+    input CountryInput {
+        name:String,
+        iso3:String,
+        iso2:String,
+        numeric_code:Int,
+        phone_code:String,
+        capital:String,
+        currency:String,
+        currency_name:String,
+        currency_symbol:String,
+        tld:String,
+        native:String,
+        region:String,
+        subregion:String,
+        zoneName: [String],
+        gmtOffset: [Int],
+        gmtOffsetName: [String],
+        abbreviation: [String],
+        tzName: [String],
+        kr: String,
+        br: String,
+        pt: String,
+        nl: String,
+        hr: String,
+        fa: String,
+        de: String,
+        es: String
+        fr: String,
+        ja: String,
+        it: String,
+        cn: String,
+        latitude:String,
+        longitude:String,
+        emoji:String,
+        emojiU:String,
+    }
+`;
 // Type departement
 exports.departementTypes = `
     type Departement {
@@ -141,6 +222,20 @@ exports.priceTypes = `
             description:String,
             startDate:Date,
             endDate:Date,
+    }
+`;
+// Region Type
+exports.regionTypes = `
+    type Region {
+        _id: ID,
+        name:String,
+        country:Country,
+        wikiDataId:String,
+    }
+    input RegionInput {
+        name:String,
+        country:String,
+        wikiDataId:String,
     }
 `;
 // Type room
@@ -261,12 +356,12 @@ exports.userTypes = `
     email:String,
     gender:String,
     password:String,
-    BOD:Date,
+    DOB:Date,
     departement:Departement,
     designation:Designation,
-    country:String,
-    city:String,
-    region:String,
+    country:Country,
+    city:City,
+    region:Region,
     address:String,
     identitas:String,
     noIdentitas:String,
@@ -288,7 +383,25 @@ exports.userTypes = `
         gender:String,
         password:String,
         passwordConfirm:String,
-        BOD:Date,
+        DOB:Date,
+        departement:String,
+        designation:String,
+        country:String,
+        city:String,
+        region:String,
+        address:String,
+        identitas:String,
+        noIdentitas:String,
+        phone:String,
+        role:String,
+    }
+    input userUpdateDataInput {
+        firstName:String,
+        lastName:String,
+        username:String,
+        email:String,
+        gender:String,
+        DOB:Date,
         departement:String,
         designation:String,
         country:String,
